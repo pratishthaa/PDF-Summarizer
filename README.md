@@ -26,7 +26,7 @@ I built a PDF summarization + Q&A app that lets me ingest PDF documents, index t
 
 > Add a screenshot of the Streamlit portal here:
 
-![Streamlit UI Screenshot](./assets/streamlit-ui.png)
+![Streamlit UI Screenshot](./StreamlitSS.jpeg)
 
 *(Create an `assets/` folder and place your screenshot as `streamlit-ui.png`.)*
 
