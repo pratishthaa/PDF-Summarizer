@@ -24,11 +24,7 @@ I built a PDF summarization + Q&A app that lets me ingest PDF documents, index t
 
 ##  Streamlit Portal
 
-> Add a screenshot of the Streamlit portal here:
-
 ![Streamlit UI Screenshot](./StreamlitSS.jpeg)
-
-*(Create an `assets/` folder and place your screenshot as `streamlit-ui.png`.)*
 
 ---
 
