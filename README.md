@@ -1,28 +1,39 @@
-# PDF Summarizer (RAG-based Document Q&A)
+# DocuMind (RAG-based Document & Web Q&A)
 
-I built a PDF summarization + Q&A app that lets me ingest PDF documents, index them in a vector database, and ask questions that are answered using only the most relevant retrieved sections from the PDFs. The app uses a simple Streamlit interface on top of a FastAPI backend and a Qdrant vector store.
+DocuMind is an AI-powered document and web assistant that lets users learn from **PDFs** and **public webpages**, index them in a vector database, and ask follow-up questions in plain English. The app uses a Streamlit frontend, a FastAPI backend, Inngest-powered background workflows, and Qdrant for semantic retrieval.
 
 ---
 
 ## 🚀 Features
 
-- **PDF ingestion**
-  - Reads PDFs and splits them into chunked passages
-  - Generates embeddings for each chunk
-  - Stores vectors + metadata (source + text) in **Qdrant**
+- **Multi-source ingestion**
+  - Upload PDF documents
+  - Paste public webpage URLs
+  - Paste direct PDF URLs
+  - Extracts and chunks content for downstream retrieval
 
-- **Document Q&A**
-  - Embeds a user question
-  - Retrieves top-k relevant chunks from Qdrant
-  - Generates a concise answer grounded in retrieved context
-  - Returns **sources** used for the response
+- **Semantic retrieval**
+  - Generates embeddings for each chunk
+  - Stores vectors and metadata in **Qdrant**
+  - Searches by meaning, not just keyword matching
+
+- **Grounded Q&A**
+  - Embeds the user’s question
+  - Retrieves the most relevant chunks from Qdrant
+  - Generates answers grounded in retrieved context
+  - Supports follow-up questions over the same source
+
+- **Multi-turn interaction**
+  - Keeps conversation history for the selected source
+  - Allows users to ask repeated questions without starting over
 
 - **Workflow-friendly backend**
-  - Ingestion and query flows are structured into steps for reliability and easier debugging.
+  - Ingestion and query flows are handled through **Inngest**
+  - Improves observability, reliability, and debugging of background steps
 
 ---
 
-##  Streamlit Portal
+## 🖥️ App Interface
 
 ![Streamlit UI Screenshot](./StreamlitSS.jpeg)
 
@@ -30,11 +41,13 @@ I built a PDF summarization + Q&A app that lets me ingest PDF documents, index t
 
 ## 🧱 Tech Stack
 
-- **Streamlit** (frontend UI)
-- **FastAPI** (backend API)
-- **Qdrant** (vector database) - Local Docker Container 
-- **OpenAI API** (embeddings + LLM)
-- **LlamaIndex** (PDF loading + chunking)
+- **Streamlit** — frontend UI
+- **FastAPI** — backend application
+- **Inngest** — event-driven workflow orchestration
+- **Qdrant** — vector database (local Docker container)
+- **OpenAI API** — embeddings and LLM responses
+- **LlamaIndex** — PDF loading and chunking
+- **Trafilatura / Requests** — webpage content extraction
 
 ---
 
@@ -43,10 +56,12 @@ I built a PDF summarization + Q&A app that lets me ingest PDF documents, index t
 ```text
 PDF-Summarizer/
   app/
-    main.py              # FastAPI app + ingestion/query flows
-    data_loader.py       # PDF loader, chunker, embeddings
-    vector_db.py         # Qdrant storage (upsert + search/query)
-    custom_types.py      # Pydantic models (step IO types)
-  streamlit_app.py       # Streamlit UI
-  .env                   # local environment variables (not committed)
+    main.py              # FastAPI app + Inngest-powered ingestion/query workflows
+    data_loader.py       # PDF/URL loader, chunker, embeddings
+    vector_db.py         # Qdrant storage (upsert + semantic search)
+    custom_types.py      # Pydantic models for workflow step I/O
+    streamlit_app.py     # Streamlit frontend
+    logo.png             # App logo (optional)
+  uploads/               # Temporary uploaded PDFs
+  .env                   # Local environment variables (not committed)
   requirements.txt
