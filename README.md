@@ -1,5 +1,15 @@
 # DocuMind: Generative AI Multi-Agent Support Assistant
 
+<p align="center">
+  <img src="app/logo_.png" alt="DocuMind Logo" width="180"/>
+</p>
+
+<h1 align="center">DocuMind: Generative AI Multi-Agent Support Assistant</h1>
+
+<p align="center">
+  Query structured customer data and unstructured policy documents through a single multi-agent support assistant.
+</p>
+
 DocuMind is a Generative AI-powered multi-agent system built for customer-support style workflows.
 
 It helps a support executive interact with both:
