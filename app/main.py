@@ -4,16 +4,23 @@ import os
 import uuid
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import inngest
 import inngest.fast_api
 from inngest.experimental import ai
+from openai import OpenAI
 
 from .custom_types import RAGChunkAndSrc, RAGSearchResult, RAGUpsertResult
 from .data_loader import embed_texts, load_and_chunk_source
 from .vector_db import QdrantStorage
+from .agents.sql_agent import handle_sql_query
+from .agents.router_agent import route_query
+from .agents.response_synthesizer import synthesize_response
 
 load_dotenv()
+
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 inngest_client = inngest.Inngest(
     app_id="document_summarizer",
@@ -189,7 +196,128 @@ async def documentsummarizer_query_source_ai(ctx: inngest.Context):
     }
 
 
+def query_document_source(question: str, top_k: int = 5, source_id: str | None = None) -> dict:
+    query_vec = embed_texts([question])[0]
+    store = QdrantStorage()
+    found = store.search(query_vec, top_k=top_k, source_id=source_id)
+
+    contexts = found["contexts"]
+    sources = found["sources"]
+
+    if not contexts:
+        return {
+            "answer": "I could not find relevant context in the indexed source(s).",
+            "sources": [],
+            "num_contexts": 0,
+        }
+
+    context_block = "\n\n".join(f"- {c}" for c in contexts)
+
+    prompt = (
+        "You answer questions using only the provided retrieved context.\n\n"
+        f"Retrieved context:\n{context_block}\n\n"
+        f"Question: {question}\n\n"
+        "Instructions:\n"
+        "- Answer using the retrieved context only.\n"
+        "- If the answer is not supported by the retrieved context, say that clearly.\n"
+        "- Be concise but helpful."
+    )
+
+    response = openai_client.responses.create(
+        model="gpt-4.1-mini",
+        input=prompt,
+    )
+
+    answer = response.output_text.strip()
+
+    return {
+        "answer": answer,
+        "sources": sources,
+        "num_contexts": len(contexts),
+    }
+
+
 app = FastAPI()
+
+
+class SQLQueryRequest(BaseModel):
+    question: str
+
+
+class ChatRequest(BaseModel):
+    question: str
+    source_id: str | None = None
+    top_k: int = 5
+
+
+@app.get("/")
+def root():
+    return {"message": "Document Summarizer + SQL Agent API is running."}
+
+
+@app.post("/query-sql")
+def query_sql(request: SQLQueryRequest):
+    try:
+        result = handle_sql_query(request.question)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/chat")
+def chat(request: ChatRequest):
+    try:
+        route = route_query(request.question)
+
+        if route["route"] == "sql":
+            sql_result = handle_sql_query(request.question)
+            return {
+                "route": "sql",
+                "answer": sql_result["answer"],
+                "sql_query": sql_result["sql_query"],
+                "rows": sql_result["rows"],
+            }
+
+        if route["route"] == "document":
+            doc_result = query_document_source(
+                question=request.question,
+                top_k=request.top_k,
+                source_id=request.source_id,
+            )
+            return {
+                "route": "document",
+                "answer": doc_result["answer"],
+                "sources": doc_result["sources"],
+                "num_contexts": doc_result["num_contexts"],
+            }
+
+        sql_result = handle_sql_query(request.question)
+        doc_result = query_document_source(
+            question=request.question,
+            top_k=request.top_k,
+            source_id=request.source_id,
+        )
+
+        final_answer = synthesize_response(
+            question=request.question,
+            sql_answer=sql_result["answer"],
+            document_answer=doc_result["answer"],
+        )
+
+        return {
+            "route": "both",
+            "answer": final_answer,
+            "sql_query": sql_result["sql_query"],
+            "rows": sql_result["rows"],
+            "sources": doc_result["sources"],
+            "num_contexts": doc_result["num_contexts"],
+            "sql_answer": sql_result["answer"],
+            "document_answer": doc_result["answer"],
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 inngest.fast_api.serve(
     app,
