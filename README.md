@@ -27,34 +27,6 @@ This project was built to satisfy the assessment requirement of creating a **Gen
 
 ## What this project does
 
-## Architecture Flow
-
-```mermaid
-flowchart TD
-    U[User] --> S[Streamlit UI]
-    S --> F[FastAPI Backend]
-    S --> M[MCP Server]
-
-    F --> R[Router Agent]
-
-    R -->|Document| D[Document Agent]
-    R -->|SQL| Q[SQL Agent]
-    R -->|Both| B[Response Synthesizer]
-
-    D --> V[Qdrant Vector DB]
-    V --> P[Uploaded PDFs / Policy Docs]
-
-    Q --> X[Text-to-SQL]
-    X --> DB[SQLite Customer DB]
-
-    D --> B
-    Q --> B
-
-    B --> A[Final Answer]
-
-    M --> D
-    M --> Q
-    M --> R
 
 ### 1. Document understanding
 Users can upload one or more PDF policy documents.
