@@ -24,8 +24,18 @@ The system supports natural language questions and routes them to the right comp
 This project was built to satisfy the assessment requirement of creating a **Generative AI Multi-Agent System** that can query structured data, process unstructured documents, and provide context-aware responses.
 
 ---
+## Architecture 
+
+<p align="center">
+  <img src="app/logo_.png" alt="DocuMind Logo" width="300"/>
+</p>
+
+<h1 align="center">DocuMind: Generative AI Multi-Agent Support Assistant</h1>
+
+<p align="center">
 
 ## What this project does
+
 
 
 ### 1. Document understanding
