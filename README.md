@@ -27,7 +27,7 @@ This project was built to satisfy the assessment requirement of creating a **Gen
 ## Architecture 
 
 <p align="center">
-  <img src="architecture.png" alt="DocuMind Logo" width="300"/>
+  <img src="architecture.png" alt="DocuMind Logo" width="600"/>
 </p>
 
 <h1 align="center">DocuMind: Generative AI Multi-Agent Support Assistant</h1>
