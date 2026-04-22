@@ -36,7 +36,7 @@ This project was built to satisfy the assessment requirement of creating a **Gen
 
 ## What this project does
 
-
+Video link : https://drive.google.com/file/d/1nAc7292jDWmqnGRJz8NpFbj-FxqdeIdp/view?usp=sharing
 
 ### 1. Document understanding
 Users can upload one or more PDF policy documents.
