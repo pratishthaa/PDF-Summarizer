@@ -170,3 +170,78 @@ app/
 │
 └── utils/
     └── prompts.py
+```
+
+## Usage
+
+Once the services are running, open the Streamlit app in your browser and use it as the main interface.
+
+### 1. Add document sources
+Upload one or more PDF files containing policy or support documents.
+
+Examples:
+- refund policy
+- cancellation policy
+- support guidelines
+
+After upload, click the document indexing button so the files are processed, chunked, embedded, and stored in Qdrant.
+
+### 2. Add structured customer data
+Upload the SQLite database file, or use the seeded local database if already available.
+
+The structured database is used for:
+- customer profile lookups
+- support ticket history
+- account status and plan queries
+- billing or refund-related customer records
+
+### 3. Ask questions
+Use the question box in the Streamlit UI to ask natural language questions.
+
+The backend router will decide whether the question should be answered using:
+- the **document agent**
+- the **SQL agent**
+- or **both**
+
+### 4. Supported query types
+
+#### Document-only queries
+Use these when you want information from uploaded PDFs.
+
+Examples:
+- What is the current refund policy?
+- Does cancellation automatically guarantee a refund?
+- What happens to customer data after cancellation?
+
+#### SQL-only queries
+Use these when you want information from structured customer/support data.
+
+Examples:
+- Give me a quick overview of customer Ema Carter’s profile and past support ticket details.
+- Which customers have open tickets?
+- What is Liam Scott’s current account status?
+
+#### Combined queries
+Use these when the answer depends on both policy documents and customer history.
+
+Examples:
+- Based on the refund policy and Ema Carter’s recent tickets, is she likely eligible for a refund?
+- Using the support guidelines and Ema Carter’s ticket history, how should support prioritize her case?
+
+### 5. Response behavior
+Depending on the query, the system returns:
+- a document-grounded answer from retrieved PDF context
+- a structured summary based on SQL query results
+- or a synthesized answer combining both sources
+
+### 6. API usage
+
+#### Query structured customer data
+`POST /query-sql`
+
+Example request body:
+
+```json
+{
+  "question": "Give me a quick overview of customer Ema Carter's profile and past support ticket details."
+}
